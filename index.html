@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Present Tense Quiz — Agarutan Print</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f4f8;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    max-width: 480px;
+    width: 100%;
+    padding: 28px 24px 32px;
+    margin: 0 auto;
+  }
+
+  /* MENU */
+  .brand {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 6px;
+  }
+  .menu-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+    line-height: 1.25;
+  }
+  .menu-subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 28px;
+  }
+  .section-btn {
+    display: block;
+    width: 100%;
+    padding: 15px 18px;
+    margin-bottom: 12px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    text-align: left;
+  }
+  .section-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.13); }
+  .section-btn:active { transform: translateY(0); }
+
+  .btn-ch1 { background: linear-gradient(135deg, #43cea2, #185a9d); color: #fff; }
+  .btn-ch2 { background: linear-gradient(135deg, #f7971e, #ffd200); color: #1a1a2e; }
+  .btn-mastery { background: linear-gradient(135deg, #7b1fa2, #4a148c); color: #fff; font-weight: 800; }
+
+  .section-btn .btn-label { font-size: 11px; font-weight: 600; opacity: 0.75; display: block; margin-bottom: 2px; }
+  .section-btn .btn-name { font-size: 16px; }
+
+  /* QUIZ HEADER */
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1a1a2e;
+    flex: 1;
+    padding-right: 10px;
+    line-height: 1.3;
+  }
+  .progress-wrap {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .progress-text {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+  .progress-bar-bg {
+    width: 80px;
+    height: 6px;
+    background: #e8ecf0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-left: auto;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #43cea2, #185a9d);
+    border-radius: 4px;
+    transition: width 0.4s;
+  }
+
+  /* QUESTION */
+  .q-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: #aaa;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .q-text {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 20px;
+    line-height: 1.45;
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .opt-btn {
+    background: #f5f7fa;
+    border: 2px solid #e0e6ed;
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .opt-btn:hover:not(:disabled) { background: #eaf0fb; border-color: #185a9d; }
+  .opt-btn.correct { background: #e6f9f0; border-color: #27ae60; color: #1a6e3c; }
+  .opt-btn.wrong   { background: #fdecea; border-color: #e74c3c; color: #922b21; }
+  .opt-btn.reveal  { background: #e6f9f0; border-color: #27ae60; color: #1a6e3c; }
+  .opt-btn:disabled { cursor: default; }
+
+  /* FEEDBACK */
+  .feedback {
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: #e6f9f0; color: #1a6e3c; }
+  .feedback.wrong   { background: #fdecea; color: #922b21; }
+
+  /* HINT */
+  .hint-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .hint-btn {
+    background: #fff8e1;
+    border: 2px solid #ffd54f;
+    color: #e65100;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .hint-btn:hover:not(:disabled) { background: #fff3cd; }
+  .hint-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .hint-box {
+    background: #fff8e1;
+    border: 1.5px solid #ffd54f;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #5d4037;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .hint-box.show { display: block; }
+
+  /* NEXT / SUBMIT */
+  .next-btn {
+    background: linear-gradient(135deg, #185a9d, #43cea2);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.15s;
+    display: none;
+  }
+  .next-btn.show { display: block; }
+  .next-btn:hover { opacity: 0.92; }
+
+  /* EXIT BUTTON */
+  .exit-btn {
+    background: #fff0f0;
+    border: 2px solid #ef9a9a;
+    color: #c62828;
+    border-radius: 9px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, color 0.18s;
+    display: block;
+    width: 100%;
+    margin-top: 14px;
+    text-align: center;
+  }
+  .exit-btn:hover {
+    background: #ef9a9a;
+    border-color: #c62828;
+    color: #b71c1c;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    background: #f0f4f8;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a2e;
+    flex: 1;
+    text-align: center;
+    min-width: 60px;
+  }
+  .stat-pill span { display: block; font-size: 10px; color: #999; font-weight: 600; }
+
+  /* END SCREEN */
+  .end-screen { text-align: center; }
+  .trophy { font-size: 52px; margin-bottom: 8px; }
+  .end-title { font-size: 22px; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+  .end-sub   { font-size: 14px; color: #888; margin-bottom: 22px; }
+
+  .stars-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 22px; }
+  .star { font-size: 28px; opacity: 0; transform: scale(0.3); transition: opacity 0.35s, transform 0.35s; }
+  .star.pop { opacity: 1; transform: scale(1); }
+
+  .score-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+  .score-pill {
+    background: #f0f4f8;
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1a1a2e;
+    text-align: center;
+    min-width: 70px;
+  }
+  .score-pill span { display: block; font-size: 11px; color: #999; font-weight: 600; margin-top: 2px; }
+
+  .end-actions { display: flex; gap: 12px; flex-direction: column; margin-bottom: 16px; }
+  .retry-btn {
+    background: linear-gradient(135deg, #185a9d, #43cea2);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .retry-btn:hover { opacity: 0.9; }
+  .menu-btn {
+    background: #f0f4f8;
+    color: #1a1a2e;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .menu-btn:hover { background: #e0e8f0; }
+
+  /* REVIEW BOX */
+  .review-box {
+    background: #f8f9ff;
+    border: 1.5px solid #c5cae9;
+    border-radius: 14px;
+    padding: 20px 18px;
+    margin-top: 10px;
+    text-align: left;
+    display: none;
+  }
+  .review-box.show { display: block; }
+  .review-lock {
+    font-size: 13px;
+    font-weight: 800;
+    color: #3949ab;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .review-question {
+    font-size: 15px;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+  }
+  .review-para {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .review-btn-etsy, .review-btn-amzn {
+    display: block;
+    width: 100%;
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 10px;
+    text-align: center;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .review-btn-etsy:hover, .review-btn-amzn:hover { opacity: 0.88; }
+
+  /* TRY AGAIN encourage */
+  .encourage-icon { font-size: 48px; margin-bottom: 10px; }
+  .encourage-msg  { font-size: 15px; color: #666; margin-bottom: 22px; line-height: 1.55; }
+
+  @media (max-width: 400px) {
+    .card { padding: 18px 14px 24px; }
+    .q-text { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+<div class="card" id="app"></div>
+
+<script>
+// ─── URL param detection ────────────────────────────────────────────────
+const urlParams = new URLSearchParams(window.location.search);
+const SRC = urlParams.get('src'); // 'etsy' | 'amazon' | null
+
+// ─── QUESTION DATA ──────────────────────────────────────────────────────
+const SECTIONS = [
+  {
+    id: 'ch1',
+    label: 'Chapter 1',
+    title: 'Simple Present Tense',
+    btnClass: 'btn-ch1',
+    questions: shuffle([
+      {
+        q: 'Which sentence uses the Simple Present Tense correctly for a habit?',
+        options: ['I am brushing my teeth every morning.', 'I brush my teeth every morning.', 'I brushed my teeth every morning.', 'I will brush my teeth every morning.'],
+        answer: 'I brush my teeth every morning.',
+        hint: 'Habits use the base form of the verb (or add -s/-es for he/she/it).'
+      },
+      {
+        q: 'Which verb correctly completes: "She _____ to the park on Sundays."',
+        options: ['go', 'goes', 'is going', 'went'],
+        answer: 'goes',
+        hint: 'She is a singular subject (he/she/it), so add -s or -es to the verb.'
+      },
+      {
+        q: 'The Simple Present Tense is used to talk about:',
+        options: ['Actions happening right now only', 'Habits, routines, facts, and feelings', 'Actions that happened yesterday', 'Plans for next week only'],
+        answer: 'Habits, routines, facts, and feelings',
+        hint: 'Think about all the uses described in Chapter 1 of the book.'
+      },
+      {
+        q: 'Which sentence is correct?',
+        options: ['They goes to school every day.', 'They go to school every day.', 'They is going to school every day.', 'They goed to school every day.'],
+        answer: 'They go to school every day.',
+        hint: 'They is a plural subject — use the base form of the verb without -s.'
+      },
+      {
+        q: 'What is the correct spelling change for "study" with he/she/it?',
+        options: ['studys', 'studiing', 'studies', 'studyes'],
+        answer: 'studies',
+        hint: 'When a verb ends in consonant + y, change y to i and add -es.'
+      },
+      {
+        q: 'Which sentence correctly uses a general truth?',
+        options: ['The sun is setting in the west right now.', 'The sun sets in the west.', 'The sun set in the west yesterday.', 'The sun will set in the west.'],
+        answer: 'The sun sets in the west.',
+        hint: 'General truths (always true facts) use the Simple Present Tense.'
+      },
+      {
+        q: 'How do you make "Does she eat vegetables?" negative?',
+        options: ["She not eat vegetables.", "She doesn't eat vegetables.", "She don't eat vegetables.", "She isn't eating vegetables."],
+        answer: "She doesn't eat vegetables.",
+        hint: 'For he/she/it, use does not (doesn\'t) + base form of the verb.'
+      },
+      {
+        q: 'What is the correct question form of "He watches TV at night."?',
+        options: ['Do he watch TV at night?', 'Is he watch TV at night?', 'Does he watch TV at night?', 'Does he watches TV at night?'],
+        answer: 'Does he watch TV at night?',
+        hint: 'Use Does for he/she/it questions. The main verb goes back to base form.'
+      },
+      {
+        q: '"I have a cat." What is the correct form for "She _____ a cat."?',
+        options: ['have', 'haves', 'having', 'has'],
+        answer: 'has',
+        hint: 'The verb "have" is irregular — it changes completely to "has" for he/she/it.'
+      },
+      {
+        q: 'Which word is a time word used with habits in Simple Present Tense?',
+        options: ['right now', 'at the moment', 'always', 'yesterday'],
+        answer: 'always',
+        hint: 'Time words for habits include: always, usually, often, every day, sometimes, never.'
+      },
+      {
+        q: 'Choose the correct short answer: "Do they play soccer?" ___',
+        options: ['Yes, they do.', 'Yes, they does.', 'Yes, they are.', 'Yes, they plays.'],
+        answer: 'Yes, they do.',
+        hint: 'For Do/They questions, the short answer uses: Yes, they do. / No, they don\'t.'
+      },
+      {
+        q: 'Which sentence is FALSE (has a grammar mistake)?',
+        options: ['She watches TV in the evening.', 'They run in the park every morning.', 'The dog bark loudly at night.', 'He writes letters to his friends.'],
+        answer: 'The dog bark loudly at night.',
+        hint: '"The dog" is singular (like he/she/it), so the verb needs -s: barks.'
+      },
+      {
+        q: 'What do you add to "watch" to make it agree with "she"?',
+        options: ['-s', '-es', '-ies', 'nothing'],
+        answer: '-es',
+        hint: 'Verbs ending in -ch, -sh, -s, -x, or -o take -es. Watch → Watches.'
+      },
+      {
+        q: '"Do you like apples?" — What is the correct negative short answer?',
+        options: ["No, I don't.", "No, I doesn't.", "No, I am not.", "No, I didn't."],
+        answer: "No, I don't.",
+        hint: 'For I/You/We/They, use: No, I don\'t. (do not)'
+      },
+      {
+        q: 'Which sentence expresses a like or dislike in Simple Present Tense?',
+        options: ['She is loving chocolate right now.', 'He loves chocolate.', 'He loved chocolate yesterday.', 'He will love chocolate.'],
+        answer: 'He loves chocolate.',
+        hint: 'Feelings and likes/dislikes use the Simple Present Tense (stative verbs).'
+      }
+    ])
+  },
+  {
+    id: 'ch2',
+    label: 'Chapter 2',
+    title: 'Present Continuous Tense',
+    btnClass: 'btn-ch2',
+    questions: shuffle([
+      {
+        q: 'The Present Continuous Tense is used to describe:',
+        options: ['Habits that happen every day', 'Actions happening right now or temporary situations', 'Facts that are always true', 'Things that happened last week'],
+        answer: 'Actions happening right now or temporary situations',
+        hint: 'Think: what is happening NOW or this week? That\'s Present Continuous!'
+      },
+      {
+        q: 'Which sentence uses the Present Continuous Tense correctly?',
+        options: ['She reads a book right now.', 'She is reading a book right now.', 'She reading a book right now.', 'She reads a book at the moment yesterday.'],
+        answer: 'She is reading a book right now.',
+        hint: 'Present Continuous = am/is/are + verb ending in -ing.'
+      },
+      {
+        q: 'What is the correct -ing form of "write"?',
+        options: ['writeing', 'writing', 'writting', 'writes'],
+        answer: 'writing',
+        hint: 'When a verb ends in a silent -e, drop the e and add -ing. write → writing.'
+      },
+      {
+        q: 'Choose the correct form: "They _____ a movie right now."',
+        options: ['is watching', 'are watching', 'am watching', 'watches'],
+        answer: 'are watching',
+        hint: 'They is plural, so use: are + verb-ing.'
+      },
+      {
+        q: 'Which sentence uses Present Continuous for a FUTURE PLAN?',
+        options: ['I am eating breakfast every day.', 'She usually goes to the gym.', 'I am visiting my grandparents tomorrow.', 'The sun rises in the east.'],
+        answer: 'I am visiting my grandparents tomorrow.',
+        hint: 'Present Continuous can describe future arrangements. Time word: tomorrow.'
+      },
+      {
+        q: 'What is the correct -ing form of "run"?',
+        options: ['runing', 'running', 'runes', 'runnes'],
+        answer: 'running',
+        hint: 'Short verbs ending in one vowel + one consonant: double the consonant and add -ing. run → running.'
+      },
+      {
+        q: 'How do you make "Is she sleeping?" negative?',
+        options: ["She is not sleeping.", "She does not sleeping.", "She isn't sleeping.", "She are not sleeping."],
+        answer: "She is not sleeping.",
+        hint: 'Add "not" after the helping verb: She is NOT sleeping. (isn\'t also correct)'
+      },
+      {
+        q: 'Which is a correct Present Continuous question?',
+        options: ['Do they playing outside?', 'Are they playing outside?', 'Is they playing outside?', 'Does they playing outside?'],
+        answer: 'Are they playing outside?',
+        hint: 'To make a question, put am/is/are BEFORE the subject.'
+      },
+      {
+        q: 'Choose the correct short answer: "Is he eating ice cream?" ___',
+        options: ["No, he doesn't.", "No, he isn't.", "No, he don't.", "No, he aren't."],
+        answer: "No, he isn't.",
+        hint: 'For he/she/it in Present Continuous, the negative short answer uses: isn\'t.'
+      },
+      {
+        q: 'Which time word goes with Present Continuous?',
+        options: ['always', 'every day', 'at the moment', 'yesterday'],
+        answer: 'at the moment',
+        hint: 'Present Continuous time words: right now, at the moment, this week, tomorrow.'
+      },
+      {
+        q: 'What is the correct -ing form of "lie"?',
+        options: ['lieing', 'lying', 'lyeing', 'liing'],
+        answer: 'lying',
+        hint: 'Verbs ending in -ie: change -ie to -y and add -ing. lie → lying.'
+      },
+      {
+        q: 'Which sentence is FALSE (has a grammar mistake)?',
+        options: ['I am studying right now.', 'She is talking to her friend at the moment.', 'The dog are barking at the stranger.', 'They are playing football.'],
+        answer: 'The dog are barking at the stranger.',
+        hint: '"The dog" is singular — use IS, not ARE: The dog is barking.'
+      },
+      {
+        q: 'Choose the correct form for "I": "I _____ eating lunch."',
+        options: ['is', 'are', 'am', 'be'],
+        answer: 'am',
+        hint: 'For the subject "I", always use AM. I am + verb-ing.'
+      },
+      {
+        q: 'What does "temporary action" mean in Present Continuous?',
+        options: ['Something that happens every single day', 'Something happening around now but not permanently', 'A fact that is always true', 'Something that happened in the past'],
+        answer: 'Something happening around now but not permanently',
+        hint: 'Example: "We are staying in a hotel this week." — not their permanent home!'
+      },
+      {
+        q: 'Which correctly describes Present Continuous negative for "I"?',
+        options: ['I don\'t eating breakfast.', 'I is not eating breakfast.', 'I am not eating breakfast.', 'I are not eating breakfast.'],
+        answer: 'I am not eating breakfast.',
+        hint: 'For "I" in Present Continuous negative: I am NOT + verb-ing. (Cannot be shortened to "I amn\'t")'
+      }
+    ])
+  },
+  {
+    id: 'mastery',
+    label: 'Mastery Test',
+    title: 'Mastery Test',
+    btnClass: 'btn-mastery',
+    questions: shuffle([
+      {
+        q: 'Complete: "She _____ to school every day." (Simple Present)',
+        options: ['go', 'goes', 'is going', 'went'],
+        answer: 'goes',
+        hint: 'She = singular → add -es to "go". go → goes.'
+      },
+      {
+        q: 'Complete: "They _____ football in the park right now." (Present Continuous)',
+        options: ['play', 'plays', 'are playing', 'is playing'],
+        answer: 'are playing',
+        hint: 'Right now = Present Continuous. They → are + playing.'
+      },
+      {
+        q: 'Which sentence is TRUE (grammatically correct)?',
+        options: ['Birds flies in the sky.', 'He are reading a book at the moment.', 'She is writing a story right now.', 'We is watching a movie together.'],
+        answer: 'She is writing a story right now.',
+        hint: 'She + is + verb-ing = correct Present Continuous for singular.'
+      },
+      {
+        q: 'Make "She likes chocolate." negative:',
+        options: ["She not like chocolate.", "She doesn't likes chocolate.", "She doesn't like chocolate.", "She isn't like chocolate."],
+        answer: "She doesn't like chocolate.",
+        hint: 'Simple Present negative for she: doesn\'t + base form (no -s on the main verb).'
+      },
+      {
+        q: 'Make "They are playing basketball right now." negative:',
+        options: ["They don't playing basketball right now.", "They are not playing basketball right now.", "They not playing basketball right now.", "They doesn't play basketball right now."],
+        answer: 'They are not playing basketball right now.',
+        hint: 'Present Continuous negative: are + not + verb-ing. (aren\'t also correct)'
+      },
+      {
+        q: 'Turn "She eats breakfast at 8 a.m." into a question:',
+        options: ['Do she eat breakfast at 8 a.m.?', 'Is she eat breakfast at 8 a.m.?', 'Does she eats breakfast at 8 a.m.?', 'Does she eat breakfast at 8 a.m.?'],
+        answer: 'Does she eat breakfast at 8 a.m.?',
+        hint: 'Simple Present question for she/he/it: Does + subject + base verb?'
+      },
+      {
+        q: 'Turn "They are watching a movie." into a question:',
+        options: ['Do they are watching a movie?', 'Does they watch a movie?', 'Are they watching a movie?', 'Is they watching a movie?'],
+        answer: 'Are they watching a movie?',
+        hint: 'Present Continuous question: move are/is/am to the front.'
+      },
+      {
+        q: '"Are you reading a book right now?" — Correct short answer:',
+        options: ['Yes, I do.', 'Yes, I am.', 'Yes, I is.', 'Yes, I reading.'],
+        answer: 'Yes, I am.',
+        hint: 'Present Continuous short answer for "I": Yes, I am. / No, I\'m not.'
+      },
+      {
+        q: '"Does she like pizza?" — Correct short answer:',
+        options: ['Yes, she do.', 'Yes, she is.', 'Yes, she does.', 'Yes, she likes.'],
+        answer: 'Yes, she does.',
+        hint: 'Simple Present short answer for she: Yes, she does. / No, she doesn\'t.'
+      },
+      {
+        q: 'He (watch / watches) TV every evening. Which is correct?',
+        options: ['watch', 'watches', 'is watching', 'watched'],
+        answer: 'watches',
+        hint: 'He = singular → add -es to "watch" (ends in -ch). watch → watches.'
+      },
+      {
+        q: 'She (is writing / writes) a letter right now. Which is correct?',
+        options: ['writes', 'is writing', 'write', 'are writing'],
+        answer: 'is writing',
+        hint: '"Right now" signals Present Continuous: is + writing.'
+      },
+      {
+        q: 'We (go / are going) to the park every weekend. Which is correct?',
+        options: ['go', 'are going', 'goes', 'is going'],
+        answer: 'go',
+        hint: '"Every weekend" = habit → Simple Present. We + go (no -s for plural).'
+      },
+      {
+        q: 'Which correctly uses BOTH tenses in one conversation? "Look! The birds _____ (fly) in the sky!" / "Yes! They always _____ (fly) high in the morning."',
+        options: ['are flying / are flying', 'fly / fly', 'are flying / fly', 'fly / are flying'],
+        answer: 'are flying / fly',
+        hint: 'First blank: right now → Present Continuous (are flying). Second: always → Simple Present (fly).'
+      },
+      {
+        q: '"Do we go to school on weekends?" — Correct short answer:',
+        options: ["No, we don't.", "No, we aren't.", "No, we doesn't.", "No, we don't go."],
+        answer: "No, we don't.",
+        hint: 'Simple Present negative short answer for We: No, we don\'t.'
+      },
+      {
+        q: 'Which sentence is FALSE (has a grammar mistake)?',
+        options: ['I am not studying for my exams.', 'He does not watch TV every evening.', 'The dog is not barking at the moment.', 'They are not visiting their friends this weekend is wrong.'],
+        answer: 'They are not visiting their friends this weekend is wrong.',
+        hint: '"They are not visiting their friends this weekend." IS correct — the label "is wrong" makes this option false!'
+      }
+    ])
+  }
+];
+
+// ─── SHUFFLE ─────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function shuffleOptions(q) {
+  return { ...q, options: shuffle(q.options) };
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────
+let state = {
+  screen: 'menu',      // 'menu' | 'quiz' | 'end'
+  sectionIdx: null,
+  questions: [],
+  qIdx: 0,
+  points: 0,
+  correct: 0,
+  wrong: 0,
+  hintUsed: false,
+  answered: false
+};
+
+// ─── RENDER ──────────────────────────────────────────────────────────────
+const app = document.getElementById('app');
+
+function render() {
+  if (state.screen === 'menu') renderMenu();
+  else if (state.screen === 'quiz') renderQuiz();
+  else if (state.screen === 'end') renderEnd();
+}
+
+function renderMenu() {
+  app.innerHTML = `
+    <div class="brand">Agarutan Print</div>
+    <div class="menu-title">Present Tense Workbook Quiz</div>
+    <div class="menu-subtitle">Simple Present &amp; Present Continuous</div>
+    ${SECTIONS.map((s, i) => `
+      <button class="section-btn ${s.btnClass}" onclick="startSection(${i})">
+        <span class="btn-label">${s.label}</span>
+        <span class="btn-name">${s.title}</span>
+      </button>
+    `).join('')}
+  `;
+}
+
+function renderQuiz() {
+  const sec = SECTIONS[state.sectionIdx];
+  const q = state.questions[state.qIdx];
+  const total = state.questions.length;
+  const pct = Math.round((state.qIdx / total) * 100);
+
+  app.innerHTML = `
+    <div class="quiz-header">
+      <div class="section-title">${sec.label}: ${sec.title}</div>
+      <div class="progress-wrap">
+        <div class="progress-text">${state.qIdx + 1} / ${total}</div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-pill">${state.points} <span>Points</span></div>
+      <div class="stat-pill">✅ ${state.correct} <span>Correct</span></div>
+      <div class="stat-pill">❌ ${state.wrong} <span>Wrong</span></div>
+    </div>
+
+    <div class="q-num">Question ${state.qIdx + 1}</div>
+    <div class="q-text">${q.q}</div>
+
+    <div class="options" id="opts">
+      ${q.options.map((o, i) => `
+        <button class="opt-btn" id="opt${i}" onclick="selectOption(${i})">${o}</button>
+      `).join('')}
+    </div>
+
+    <div class="hint-row">
+      <button class="hint-btn" id="hintBtn" onclick="showHint()">💡 Hint (−5 pts)</button>
+    </div>
+    <div class="hint-box" id="hintBox">💡 ${q.hint}</div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+      ${state.qIdx + 1 === total ? 'See Results 🏁' : 'Next Question →'}
+    </button>
+
+    <button class="exit-btn" onclick="exitToMenu()">✕ Exit to Menu</button>
+  `;
+}
+
+function renderEnd() {
+  const sec = SECTIONS[state.sectionIdx];
+  const total = state.questions.length;
+  const maxPts = total * 10;
+  const pct = Math.round((state.correct / total) * 100);
+  const passed = pct >= 70;
+  const isMastery = sec.id === 'mastery';
+
+  let title = '';
+  let trophy = '';
+  if (pct === 100) { title = '🏆 Spectacular!'; trophy = '🏆'; }
+  else if (pct >= 85) { title = '⭐ Excellent!'; trophy = '⭐'; }
+  else if (pct >= 70) { title = '🌟 Great Job!'; trophy = '🌟'; }
+
+  // Review box logic
+  const showReview = isMastery && passed && (SRC === 'etsy' || SRC === 'amazon');
+
+  let reviewHtml = '';
+  if (showReview) {
+    let btns = '';
+    if (SRC === 'etsy') {
+      btns = `<a class="review-btn-etsy" href="https://www.etsy.com/your/purchases" target="_blank" rel="noopener">⭐ Leave a Review on Etsy</a>`;
+    } else if (SRC === 'amazon') {
+      btns = `
+        <a class="review-btn-amzn" href="https://www.amazon.com/review/create-review?asin=B0DR2Y3T73" target="_blank" rel="noopener">📦 Review Paperback on Amazon</a>
+        <a class="review-btn-amzn" href="https://www.amazon.com/review/create-review?asin=B0F849KCS4" target="_blank" rel="noopener">📗 Review Hardcover on Amazon</a>
+      `;
+    }
+    reviewHtml = `
+      <div class="review-box show">
+        <div class="review-lock">🔒 Notice: For Parents &amp; Educators</div>
+        <div class="review-question">How did you like this complete resource bundle?</div>
+        <p class="review-para">Thank you for choosing Agarutan Print! We hope this combination of printable worksheets, the digital fillable PDF, and the interactive quiz bonus is helping to build your student's skills.</p>
+        <p class="review-para">If this comprehensive resource bundle added value to your student's learning experience, please take a brief moment to share your feedback. Your review helps us continue creating high-quality learning assets!</p>
+        ${btns}
+      </div>
+    `;
+  }
+
+  if (passed) {
+    app.innerHTML = `
+      <div class="end-screen">
+        <div class="trophy" id="trophyIcon">${trophy}</div>
+        <div class="stars-row">
+          <div class="star" id="star0">⭐</div>
+          <div class="star" id="star1">⭐</div>
+          <div class="star" id="star2">⭐</div>
+          <div class="star" id="star3">⭐</div>
+          <div class="star" id="star4">⭐</div>
+        </div>
+        <div class="end-title">${title}</div>
+        <div class="end-sub">You completed: ${sec.title}</div>
+        <div class="score-pills">
+          <div class="score-pill">${state.points}<span>Points</span></div>
+          <div class="score-pill">✅ ${state.correct}<span>Correct</span></div>
+          <div class="score-pill">❌ ${state.wrong}<span>Wrong</span></div>
+          <div class="score-pill">${pct}%<span>Score</span></div>
+        </div>
+        <div class="end-actions">
+          <button class="retry-btn" onclick="startSection(${state.sectionIdx})">🔄 Try Again</button>
+          <button class="menu-btn" onclick="goMenu()">← Back to Menu</button>
+        </div>
+        ${reviewHtml}
+      </div>
+    `;
+    // Pop stars one by one
+    [0,1,2,3,4].forEach((i) => {
+      setTimeout(() => {
+        const el = document.getElementById('star' + i);
+        if (el) el.classList.add('pop');
+      }, 200 + i * 180);
+    });
+  } else {
+    app.innerHTML = `
+      <div class="end-screen">
+        <div class="encourage-icon">💪</div>
+        <div class="end-title">Keep Going!</div>
+        <div class="encourage-msg">You scored <strong>${pct}%</strong> — you need 70% to pass. Review the chapter and try again. You've got this!</div>
+        <div class="score-pills">
+          <div class="score-pill">${state.points}<span>Points</span></div>
+          <div class="score-pill">✅ ${state.correct}<span>Correct</span></div>
+          <div class="score-pill">❌ ${state.wrong}<span>Wrong</span></div>
+          <div class="score-pill">${pct}%<span>Score</span></div>
+        </div>
+        <div class="end-actions">
+          <button class="retry-btn" onclick="startSection(${state.sectionIdx})">🔄 Try Again</button>
+          <button class="menu-btn" onclick="goMenu()">← Back to Menu</button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────
+function startSection(idx) {
+  state = {
+    screen: 'quiz',
+    sectionIdx: idx,
+    questions: SECTIONS[idx].questions.map(shuffleOptions),
+    qIdx: 0,
+    points: 0,
+    correct: 0,
+    wrong: 0,
+    hintUsed: false,
+    answered: false
+  };
+  render();
+}
+
+function selectOption(i) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const q = state.questions[state.qIdx];
+  const chosen = q.options[i];
+  const correct = chosen === q.answer;
+
+  // Disable all buttons
+  q.options.forEach((_, j) => {
+    const btn = document.getElementById('opt' + j);
+    if (btn) btn.disabled = true;
+    if (q.options[j] === q.answer) btn.classList.add('reveal');
+  });
+
+  const chosenBtn = document.getElementById('opt' + i);
+  if (correct) {
+    chosenBtn.classList.add('correct');
+    const pts = state.hintUsed ? 5 : 10;
+    state.points += pts;
+    state.correct++;
+    showFeedback(true, pts);
+  } else {
+    chosenBtn.classList.add('wrong');
+    state.wrong++;
+    showFeedback(false, 0);
+  }
+
+  const hintBtn = document.getElementById('hintBtn');
+  if (hintBtn) hintBtn.disabled = true;
+
+  const nextBtn = document.getElementById('nextBtn');
+  if (nextBtn) nextBtn.classList.add('show');
+}
+
+function showFeedback(correct, pts) {
+  const fb = document.getElementById('feedback');
+  if (!fb) return;
+  fb.classList.add('show');
+  if (correct) {
+    fb.classList.add('correct');
+    fb.textContent = pts === 5 ? '✅ Correct! +5 points (hint used)' : '✅ Correct! +10 points';
+  } else {
+    fb.classList.add('wrong');
+    const q = state.questions[state.qIdx];
+    fb.textContent = '❌ Not quite. The correct answer is: ' + q.answer;
+  }
+}
+
+function showHint() {
+  const hintBtn = document.getElementById('hintBtn');
+  const hintBox = document.getElementById('hintBox');
+  if (!hintBtn || !hintBox) return;
+  if (state.hintUsed || state.answered) return;
+  state.hintUsed = true;
+  hintBtn.disabled = true;
+  hintBox.classList.add('show');
+}
+
+function nextQuestion() {
+  const total = state.questions.length;
+  if (state.qIdx + 1 >= total) {
+    state.screen = 'end';
+    render();
+    return;
+  }
+  state.qIdx++;
+  state.hintUsed = false;
+  state.answered = false;
+  render();
+}
+
+function exitToMenu() {
+  goMenu();
+}
+
+function goMenu() {
+  state.screen = 'menu';
+  render();
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
